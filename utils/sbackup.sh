@@ -53,6 +53,8 @@ PGDUMP=`which pg_dump`
 BZIP=`which bzip2`
 TAR=`which tar`
 SENDMAIL=`which sendmail`
+DROPBOX_UPLOADER="/home/user/mbin/dropbox_uploader.sh"
+DROPBOX_PATH="/" #remote folder in Dropbox
 
 # ------- Checking -------
 if [ -z "$SS_USER" ] || [ -z "$SS_PWD" ] || [ -z "$SS_CONTAINER" ]; then
@@ -172,7 +174,12 @@ if [ -n "$DB_BACKUP_FILENAME" ]; then
 	_for_upload=( "${_for_upload[@]}" "$BACKUP_DIR/$DB_BACKUP_FILENAME")
 fi
 
-# ------- Upload backups -------
+# ------- Upload backups to Dropbox -------
+echo "$(date +%H:%M:%S) Uploading backup files to Dropbox..." | _log
+for _file in "${_for_upload[@]}"; do
+        $DROPBOX_UPLOADER upload "$_file" ${DROPBOX_PATH}/"${_file##*/}"  | _log
+done
+# ------- Upload backups to Selectel Storage -------
 echo "$(date +%H:%M:%S) Uploading backup files to Selectel Storage..." | _log
 
 for _file in "${_for_upload[@]}"; do
